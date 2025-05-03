@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# python dataset_merge_split.py split
+python dataset_merge_split.py merge
+

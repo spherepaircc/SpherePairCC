@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# =========================================== a SpherePair demo using balanced constraints, with pretrain ===========================================
+# Pretrain the sdae for SpherePair
+python tool_pretrain_sphere.py --dataset "fmnist" # Default --dim "10"
+
+# Generate 10 nested and increasing balanced constraint sets, with sizes 1000, 2000, ..., 10000
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Kmeans_Pretrain" --expName "demo"
+
+# Run SpherePair
+# consIndex determines which of the 10 generated constraint sets to use. consIndex=10 means using the 10th set, containing 10000 constraints
+python run_model_Sphere_Kmeans.py --dataset "$dataset" --consRule "balance" --consIndex "10" --use_pretrain "True" --epochs "300" --expName "demo" # Default --dim "10"
+
+
+# =========================================== a SpherePair demo using balanced constraints, without pretrain ===========================================
+# Generate 10 nested and increasing balanced constraint sets, with sizes 1000, 2000, ..., 10000
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Kmeans_noPretrain" --expName "demo"
+
+# Run SpherePair
+# consIndex determines which of the 10 generated constraint sets to use. consIndex=10 means using the 10th set, containing 10000 constraints
+python run_model_Sphere_Kmeans.py --dataset "$dataset" --consRule "balance" --consIndex "10" --use_pretrain "False" --epochs "300" --expName "demo" # Default --dim "10"
+
+
+# =========================================== a SpherePair demo using imbalanced constraints, with pretrain ===========================================
+# Pretrain the sdae for SpherePair
+python tool_pretrain_sphere.py --dataset "fmnist" # Default --dim "10"
+
+# Generate 10 nested and increasing imbalanced constraint sets, with sizes 1000, 2000, ..., 10000
+python tool_createCons.py --dataset "fmnist" --consRule "extraCLs" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Kmeans_Pretrain" --expName "demo"
+
+# Run SpherePair
+# consIndex determines which of the 10 generated constraint sets to use. consIndex=10 means using 1000 balanced constraints + 9000 additional imbalanced constraints, i.e., the IMB2 constraint setup from the paper
+python run_model_Sphere_Kmeans.py --dataset "$dataset" --consRule "extraCLs" --consIndex "10" --use_pretrain "True" --epochs "300" --expName "demo" # Default --dim "10"
+
+
+# =========================================== a SpherePair demo using imbalanced constraints, without pretrain ===========================================
+# Generate 10 nested and increasing imbalanced constraint sets, with sizes 1000, 2000, ..., 10000
+python tool_createCons.py --dataset "fmnist" --consRule "extraCLs" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Kmeans_noPretrain" --expName "demo"
+
+# Run SpherePair
+# consIndex determines which of the 10 generated constraint sets to use. consIndex=10 means using 1000 balanced constraints + 9000 additional imbalanced constraints, i.e., the IMB2 constraint setup from the paper
+python run_model_Sphere_Kmeans.py --dataset "$dataset" --consRule "extraCLs" --consIndex "10" --use_pretrain "False" --epochs "300" --expName "demo" # Default --dim "10"
+
+
+

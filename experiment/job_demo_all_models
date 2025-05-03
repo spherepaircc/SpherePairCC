@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# pretrain sphere SDAE for SpherePair, and standard SDAE for other models
+python tool_pretrain_sphere.py --dataset "fmnist"
+python tool_pretrain_sdae.py --dataset "fmnist"
+
+
+# 1) Sphere_Kmeans_Pretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Kmeans_Pretrain" --expName "demo"
+python run_model_Sphere_Kmeans.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "True"  --epochs "300" --expName "demo"
+
+ 
+# 2) Sphere_Kmeans_noPretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Kmeans_noPretrain" --expName "demo"
+python run_model_Sphere_Kmeans.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "False"  --epochs "300" --expName "demo"
+
+ 
+# 3) Sphere_Hierarchical_Pretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Hierarchical_Pretrain" --expName "demo"
+python run_model_Sphere_Hierarchical.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "True"  --epochs "300" --expName "demo"
+
+ 
+# 4) Sphere_Hierarchical_noPretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "Sphere_Hierarchical_noPretrain" --expName "demo"
+python run_model_Sphere_Hierarchical.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "False"  --epochs "300" --expName "demo"
+
+# 5) AutoEmbedder_Kmeans_Pretrain [make sure you have complate hyperparameter tuning before running this!!!]
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "AutoEmbedder_Kmeans_Pretrain" --expName "demo"
+python run_model_AutoEmbedder_Kmeans.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "True"  --epochs "300" --expName "demo"
+
+ 
+# 6) AutoEmbedder_Kmeans_noPretrain [make sure you have complate hyperparameter tuning before running this!!!]
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "AutoEmbedder_Kmeans_noPretrain" --expName "demo"
+python run_model_AutoEmbedder_Kmeans.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "False"  --epochs "300" --expName "demo"
+
+ 
+# 7) AutoEmbedder_Hierarchical_Pretrain [make sure you have complate hyperparameter tuning before running this!!!]
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "AutoEmbedder_Hierarchical_Pretrain" --expName "demo"
+python run_model_AutoEmbedder_Hierarchical.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "True"  --epochs "300" --expName "demo"
+
+ 
+# 8) AutoEmbedder_Hierarchical_noPretrain [make sure you have complate hyperparameter tuning before running this!!!]
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "AutoEmbedder_Hierarchical_noPretrain" --expName "demo"
+python run_model_AutoEmbedder_Hierarchical.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "False"  --epochs "300" --expName "demo"
+
+
+# 9) CIDEC_Pretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "CIDEC_Pretrain" --expName "demo"
+python run_model_CIDEC.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "True"  --epochs "300" --expName "demo"
+
+ 
+# 10) CIDEC_noPretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "CIDEC_noPretrain" --expName "demo"
+python run_model_CIDEC.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "False"  --epochs "300" --expName "demo"
+
+ 
+# 11) SDEC_Pretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "SDEC_Pretrain" --expName "demo"
+python run_model_SDEC.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "True"  --epochs "300" --expName "demo"
+
+ 
+# 12) SDEC_noPretrain
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "SDEC_noPretrain" --expName "demo"
+python run_model_SDEC.py --dataset "fmnist" --consRule "balance" --consIndex "10" --use_pretrain "False"  --epochs "300" --expName "demo"
+
+
+# 13) VanillaDCC
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "VanillaDCC" --expName "demo"
+python run_model_VanillaDCC.py --dataset "fmnist" --consRule "balance" --consIndex "10"  --epochs "300" --expName "demo"
+
+ 
+# 14) VolMaxDCC [make sure you have complate hyperparameter tuning before running this!!!]
+python tool_createCons.py --dataset "fmnist" --consRule "balance" --set "train" --orig_num "1000" --extra_num "9000" --J "10" --imbCluster "0" --modelVersion "VolMaxDCC" --expName "demo"
+python run_model_VolMaxDCC.py --dataset "fmnist" --consRule "balance" --consIndex "10"  --epochs "300" --expName "demo"
+
+
+
+
