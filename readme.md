@@ -3,6 +3,7 @@
 This repository provides the official implementation of the paper _"Angular Constraint Embedding via SpherePair Loss for Constrained Clustering"_, including **SpherePair** and several baseline methods for Deep Constrained Clustering (DCC).
 
 Using a geometrically formulated loss, SpherePair faithfully encodes pairwise constraints and leads to embeddings that are clustering-friendly in angular space, effectively separating representation learning from clustering. 
+SpherePair preserves pairwise relations without conflict, removes the need to specify the exact number of clusters, generalizes to unseen data, enables rapid inference of the number of clusters, and is supported by rigorous theoretical guarantees.
 SpherePair outperforms state-of-the-art DCC baselines on various benchmark datasets, even when a simple K-means algorithm is applied to its learned representations.
 
 In the examples below, which involve subsets of the Reuters dataset, we set the embedding dimension to $D=3$ and use the negative-zone factor $\omega = \pi / \arccos\bigl(-\frac{1}{K-1}\bigr)$ to ensure equidistant separation on a unit sphere. Each animation shows the training evolution for subsets of the Reuters dataset with different numbers of clusters $(K=2, 3, 4)$.
@@ -33,7 +34,7 @@ You can run **SpherePair** and various **baseline models** (VanillaDCC, VolMaxDC
    2. **Generate** a constraint set via `tool_createCons.py` (balanced or imbalanced).
    3. **Run** the corresponding model script (e.g., `run_model_Sphere_Kmeans.py`) to train and evaluate clustering performance.
 
-You can adapt the scripts to different datasets (`mnist`, `fmnist`, `reuters`, `cifar10`, `stl10`, `imagenet10`, `cifar100`), different constraint sizes/rules, or different model versions.
+You can adapt the scripts to different datasets (`mnist`, `fmnist`, `reuters`, `cifar10`, `stl10`, `imagenet10`, `cifar100`, `rcv1`), different constraint sizes/rules, or different model versions.
 
 > **Note**: Logs and intermediate outputs are typically stored under `experiment/exp_{expName}/lab_{modelVersion}/{dataset}/{consRule}/`.
 
@@ -136,6 +137,7 @@ For broader experiments (using different datasets, constraint settings, model ve
   - For **any other** autoencoder-based models, use `tool_pretrain_sdae.py`.
 - Intermediate files, logs, and results will appear under `experiment/exp_{expName}/lab_{modelVersion}/{dataset}/{consRule}/`.
 - When running `python run_model_Sphere_Kmeans.py`, you can specify `--omega` and `--dim` to try different parameter combinations. However, if you use pre-trained weights, ensure that the `--dim` specified during pretraining matches the one during training.
+- For **PCA-based K-inference**, config `run_model_Sphere_Kmeans.py --PCA "True" --tail_ratio "0.05"`, and find the `analyze_K_diffs_results.csv` in the log dir.
 
 Below are examples of hyperparameter tuning that are required for the baseline methods **AutoEmbedder** and **VolMaxDCC**.
 
