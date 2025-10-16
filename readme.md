@@ -28,7 +28,9 @@ You can run **SpherePair** and various **baseline models** (VanillaDCC, VolMaxDC
    ```
    This command reconstructs the complete dataset files for your experiments.
 
-2. **Experiment Flow**  
+   Download the preprocessed RCV1-10 dataset (big file) [here](https://drive.google.com/drive/folders/1Zn5Z2lWYBSNCCwanaczbOkUTV5pMe8qz?usp=drive_link) and put it in `experiment/dataset/`.
+
+3. **Experiment Flow**  
    A typical flow for running SpherePair or baselines is as follows:
    1. *(Optional)* **Pretrain** an autoencoder if needed by the model (e.g., SpherePair with `--use_pretrain "True"`).
    2. **Generate** a constraint set via `tool_createCons.py` (balanced or imbalanced).
