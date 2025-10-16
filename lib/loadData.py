@@ -279,3 +279,34 @@ def load_imagenet10(split_val=False):
         return X_train_tensor, y_train_tensor, X_test_tensor, y_test_tensor, X_val_tensor, y_val_tensor
     else:
         return X_train_tensor, y_train_tensor, X_test_tensor, y_test_tensor
+
+
+
+"""rcv1-10"""
+def load_rcv1(split_val=False):
+    dataset_path = "./dataset/rcv1/rcv1_dataset.pkl"
+    with open(dataset_path, 'rb') as f:
+        X, y = pickle.load(f)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, stratify=y)
+
+    if split_val:
+        X_train, y_train, X_val, y_val = split_val_set(X_train, y_train)
+
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    if split_val:
+        X_val_scaled = scaler.transform(X_val)
+
+    X_train_tensor = torch.tensor(X_train_scaled, dtype=torch.float).to('cuda')
+    y_train_tensor = torch.tensor(y_train, dtype=torch.long).to('cuda')
+    X_test_tensor = torch.tensor(X_test_scaled, dtype=torch.float).to('cuda')
+    y_test_tensor = torch.tensor(y_test, dtype=torch.long).to('cuda')
+
+    if split_val:
+        X_val_tensor = torch.tensor(X_val_scaled, dtype=torch.float).to('cuda')
+        y_val_tensor = torch.tensor(y_val, dtype=torch.long).to('cuda')
+        return X_train_tensor, y_train_tensor, X_test_tensor, y_test_tensor, X_val_tensor, y_val_tensor
+    else:
+        return X_train_tensor, y_train_tensor, X_test_tensor, y_test_tensor
