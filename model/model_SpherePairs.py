@@ -454,6 +454,32 @@ class SpherePairs(nn.Module):
 
 
     #############################################################################
+    #                            PCA-based K-inference                          #
+    #############################################################################
+    def analyze_K_with_dim_reduction(self, X, cl_ind1, cl_ind2, max_components=None, tail_ratio=0.05, sample_size=None, PCA=True):
+        from lib.analyse_K_with_pca import analyze_K_with_pca_variance_core
+        self.eval()
+        use_cuda = torch.cuda.is_available()
+        if use_cuda:
+            self.cuda()
+        z_norm = self.encodeBatch(X)
+        z_np = z_norm.cpu().numpy()
+        if PCA:
+            method = 'PCA'
+        else:
+            method = 'TruncatedSVD'
+        results = analyze_K_with_pca_variance_core(
+            z_np, cl_ind1, cl_ind2, 
+            max_components=max_components, 
+            ratio=tail_ratio,
+            sample_size=sample_size, 
+            method=method
+        )
+        return results
+    
+
+
+    #############################################################################
     #                                assign_Kmeans                              #
     #############################################################################
     def assign_Kmeans(self, 
