@@ -43,7 +43,7 @@ class VolMaxDCC(nn.Module):
         for i in range(1, len(layers)):
             layers_list.append(nn.Linear(layers[i-1], layers[i]))
             if i < len(layers) - 1: 
-                layers_list.append(nn.BatchNorm1d(layers[i]))
+                # layers_list.append(nn.BatchNorm1d(layers[i]))     # has compatibility issue with more recent DL framework env
                 if activation == "relu":
                     layers_list.append(nn.ReLU())
                 elif activation == "sigmoid":
@@ -81,12 +81,14 @@ class VolMaxDCC(nn.Module):
 
     # A larger loss_2 represents greater volume/diversity/linear independence/spread of F
     # Reducing loss_1 means increasing loss_2 (L = loss1 - lambda*loss2)
-    def compute_loss_2(self, F):   
-        cov = torch.matmul(F.T, F)
-        det_cov = torch.det(cov)
-        if det_cov <= 0:
-            det_cov = torch.tensor(1e-6, device=self.device)
-        return torch.log(det_cov)
+    def compute_loss_2(self, F):
+        eps = 1e-6
+        F_cpu = F.to('cpu')
+        cov_cpu = F_cpu.t().mm(F_cpu)
+        K = cov_cpu.size(0)
+        cov_cpu = cov_cpu + eps * torch.eye(K, dtype=cov_cpu.dtype)
+        sign, logabsdet = torch.slogdet(cov_cpu)
+        return logabsdet.to(self.device)
     
 
     # Use a subset X_sub to compute loss_2 for faster computation
@@ -98,8 +100,8 @@ class VolMaxDCC(nn.Module):
         loss_1 = self.compute_loss_1(B, q1, q2, type_values)
         if self.is_B_trainable:
             N = X.size(0)
-            N_prime = 10000  # subset size
-            indices = torch.randperm(N)[:N_prime]
+            N_prime = min(10000, int(N))
+            indices = torch.randperm(N, device=X.device)[:N_prime]
             X_sub = X[indices, :]
             F = self.soft_assign(X_sub)
             loss_2 = self.compute_loss_2(F)
