@@ -28,6 +28,8 @@ if __name__ == "__main__":
     parser.add_argument('--lam', type=float, default=0.02)                  # Specify the lambda value for reconstruction loss weight
     parser.add_argument('--omega', type=float, default=2)                   # Specify the omega value in pairwise loss
     parser.add_argument('--dim', type=int, default=10)                      # Specify the dimension of the embedding space
+    parser.add_argument('--PCA', type=str, default="False")                 # Specify whether to use PCA-based K-inference
+    parser.add_argument('--tail_ratio', type=float, default=0.05)           # Specify the tail ratio in PCA-based K-inference
     parser.add_argument('--plot3D', type=str, default="False")              # Specify whether to plot a 3D spherical graph
     parser.add_argument('--expName', type=str, default="anchor_issues")     # Specify the experiment name for determining the path to store results
     parser.add_argument('--autoK', type=str, default="False")               # Specify whether to use an automatic method to determine K
@@ -189,8 +191,53 @@ if __name__ == "__main__":
         record_feature_norm = record_feature_norm)
     
 
-    # Do not use the automatic method to determine K, assuming the ground truth K is known
-    if args.autoK == "False":
+
+    #==================== Stage 1.5: PCA-based K-inference ====================
+    # use this csv file to save the results for K-inference
+    diffs_csv_path = os.path.join(lab_result_path, "analyze_K_diffs_results.csv")
+
+    if not os.path.exists(diffs_csv_path):
+        with open(diffs_csv_path, "w", encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["dataset", "consRule", "consIndex", "z_dim", "tail_ratio", 
+                        "analysis_time", "angle_means", "min_ratio_means", "diffs"])
+
+    
+    if args.PCA == "True":
+        if args.tail_sensitivity == "False":
+            start_analysis_time = time.time()
+            angle_means, min_ratio_means, diffs = model.analyze_K_with_dim_reduction(
+                X=X,
+                cl_ind1=cl_ind1,
+                cl_ind2=cl_ind2,
+                tail_ratio=args.tail_ratio,
+                PCA=True
+            )
+            end_analysis_time = time.time()
+            analysis_time = end_analysis_time - start_analysis_time
+
+            print(f"PCA projections info:")
+            print(f"  Means of cannot-link constraints angles:\n  {angle_means}")
+            print(f"  Means of min (ratio percent) cannot-link constraints angles:\n  {min_ratio_means}")
+            print(f"  Means of cannot-link constraints diffs:\n  {diffs}")
+            print(f"  Analysis time: {analysis_time:.4f}s")
+
+            angle_means_list = angle_means.tolist() if hasattr(angle_means, 'tolist') else angle_means
+            min_ratio_means_list = min_ratio_means.tolist() if hasattr(min_ratio_means, 'tolist') else min_ratio_means
+            diffs_list = diffs.tolist() if hasattr(diffs, 'tolist') else diffs
+            
+            with open(diffs_csv_path, "a", encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([args.dataset, args.consRule, args.consIndex, z_dim, args.tail_ratio,
+                                f"{analysis_time:.4f}", 
+                                str(angle_means_list), 
+                                str(min_ratio_means_list), 
+                                str(diffs_list)])
+
+    
+
+
+    if args.autoK == "False":   # assuming the ground truth K is known
         #========================= Stage 2: Provide Assignment =========================
         import time
         start_time = time.time()
@@ -238,11 +285,16 @@ if __name__ == "__main__":
         silhouette_score_list = []
         silhouette_score_std_list = []
         train_acc_list, test_acc_list, train_nmi_list, test_nmi_list, train_ari_list, test_ari_list = [], [], [], [], [], []
-        #========================= Automatically Determine K =========================
+        #========================= Automatically Determine K with Silhouette Score ==========================
         # Iterate over specific_K
-        specific_K_values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        if args.dataset == 'cifar100':
+            specific_K_values = list(range(2, 51))  # cifar100: 2--50
+        else:
+            specific_K_values = list(range(2, 21))  # Other datasets: 2--20
+        # Record the start time for all K evaluations
+        total_k_start_time = time.time()
         for specific_K in specific_K_values:
-            # Make assignments
+            # make assignments
             train_acc, test_acc, train_nmi, test_nmi, train_ari, test_ari, silhouette_score_avg, silhouette_score_std = model.assign_Kmeans(
                 record_log_dir=record_log_dir,
                 ml_ind1 = ml_ind1, 
@@ -264,8 +316,12 @@ if __name__ == "__main__":
             test_nmi_list.append(test_nmi)
             train_ari_list.append(train_ari)
             test_ari_list.append(test_ari)
+        # Record the end time for all K evaluations
+        total_k_end_time = time.time()
+        total_k_time = total_k_end_time - total_k_start_time
+        print(f"Total time for all K evaluations: {total_k_time:.2f}s")
         # Select the best specific_K
-        best_specific_K = np.argmax(silhouette_score_list) + 2
+        best_specific_K = specific_K_values[np.argmax(silhouette_score_list)]
         # =============== Stage 2: Provide Assignment Using the Best specific_K ===============
         # Make assignments
         train_acc, test_acc, train_nmi, test_nmi, train_ari, test_ari, best_silhouette_score, best_silhouette_score_std = model.assign_Kmeans(
