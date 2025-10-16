@@ -24,7 +24,7 @@ class VanillaDCC(nn.Module):
         layer_sizes = [input_dim] + hidden_layers
         for i in range(1, len(layer_sizes)):
             feature_layers.append(nn.Linear(layer_sizes[i-1], layer_sizes[i]))
-            feature_layers.append(nn.BatchNorm1d(layer_sizes[i]))
+            # feature_layers.append(nn.BatchNorm1d(layer_sizes[i]))    # has compatibility issue with more recent DL framework env
             if activation == "relu":
                 feature_layers.append(nn.ReLU())
             elif activation == "sigmoid":
